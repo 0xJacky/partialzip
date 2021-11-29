@@ -46,8 +46,9 @@ func (p *PartialZip) init() error {
 	req, _ := http.NewRequest("HEAD", p.URL, nil)
 	resp, _ := client.Do(req)
 	p.Size = resp.ContentLength
-
+	count := 0
 	for offset < 0 && chuck < (1000 * 1024) {
+		count++
 		//increase until we have enough to hold in the offset
 		chuck = 10 * chuck
 
@@ -66,7 +67,8 @@ func (p *PartialZip) init() error {
 		r = bytes.NewReader(body)
 
 		// parse zip's directory end
-		end, err = readDirectoryEnd(r, chuck)
+		end, err = readDirectoryEnd(r, chuck, p.Size)
+
 		if err != nil {
 			return errors.Wrap(err, "failed to read directory end from remote zip")
 		}
@@ -74,7 +76,7 @@ func (p *PartialZip) init() error {
 		// z.r = r
 		p.Files = make([]*File, 0, end.directoryRecords)
 
-		offset = int64(chuck - (p.Size - int64(end.directoryOffset)))
+		offset = chuck - (p.Size - int64(end.directoryOffset))
 	}
 
 	// z.Comment = end.comment

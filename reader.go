@@ -348,24 +348,24 @@ parseExtras:
 	return nil
 }
 
-func readDirectoryEnd(r io.ReaderAt, size int64) (dir *directoryEnd, err error) {
+func readDirectoryEnd(r io.ReaderAt, chunkSize int64, totalSize int64) (dir *directoryEnd, err error) {
 	// look for directoryEndSignature in the last 1k, then in the last 65k
 	var buf []byte
 	var directoryEndOffset int64
 	for i, bLen := range []int64{1024, 65 * 1024} {
-		if bLen > size {
-			bLen = size
+		if bLen > chunkSize {
+			bLen = chunkSize
 		}
 		buf = make([]byte, int(bLen))
-		if _, err := r.ReadAt(buf, size-bLen); err != nil && err != io.EOF {
+		if _, err := r.ReadAt(buf, chunkSize-bLen); err != nil && err != io.EOF {
 			return nil, err
 		}
 		if p := findSignatureInBlock(buf); p >= 0 {
 			buf = buf[p:]
-			directoryEndOffset = size - bLen + int64(p)
+			directoryEndOffset = chunkSize - bLen + int64(p)
 			break
 		}
-		if i == 1 || bLen == size {
+		if i == 1 || bLen == chunkSize {
 			return nil, errFormat
 		}
 	}
@@ -391,7 +391,7 @@ func readDirectoryEnd(r io.ReaderAt, size int64) (dir *directoryEnd, err error) 
 	if d.directoryRecords == 0xffff || d.directorySize == 0xffff || d.directoryOffset == 0xffffffff {
 		p, err := findDirectory64End(r, directoryEndOffset)
 		if err == nil && p >= 0 {
-			err = readDirectory64End(r, p, d)
+			err = readDirectory64End(r, chunkSize-(totalSize-p), d)
 		}
 		if err != nil {
 			return nil, err
