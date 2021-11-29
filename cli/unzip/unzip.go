@@ -20,7 +20,7 @@
 
 package main
 
-import "github.com/blacktop/partialzip/cli/unzip/cmd"
+import "github.com/heyleke/partialzip/cli/unzip/cmd"
 
 func main() {
 	cmd.Execute()
