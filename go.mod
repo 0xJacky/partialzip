@@ -1,4 +1,4 @@
-module github.com/blacktop/partialzip
+module github.com/heyleke/partialzip
 
 go 1.17
 
