@@ -72,6 +72,11 @@ func (p *PartialZip) init() error {
 		// pull chuck from end of remote zip
 		reqRange := fmt.Sprintf("bytes=%d-%d", p.Size-chuck, p.Size)
 		req, _ = http.NewRequest("GET", p.URL, nil)
+		if len(p.Cookies) > 0 {
+			for _, v := range p.Cookies {
+				req.AddCookie(v)
+			}
+		}
 		req.Header.Add("Range", reqRange)
 		resp, _ = client.Do(req)
 
@@ -154,6 +159,11 @@ func (p *PartialZip) Get(path string) (io.ReadCloser, error) {
 		// find path in zip directory
 		if strings.EqualFold(file.Name, path) {
 			req, _ := http.NewRequest("GET", p.URL, nil)
+			if len(p.Cookies) > 0 {
+				for _, v := range p.Cookies {
+					req.AddCookie(v)
+				}
+			}
 			end := uint64(file.headerOffset) + file.CompressedSize64 + padding
 			reqRange := fmt.Sprintf("bytes=%d-%d", file.headerOffset, end)
 			req.Header.Add("Range", reqRange)
@@ -188,6 +198,11 @@ func (p *PartialZip) Download(path string) (int, error) {
 		// find path in zip directory
 		if strings.EqualFold(file.Name, path) {
 			req, _ := http.NewRequest("GET", p.URL, nil)
+			if len(p.Cookies) > 0 {
+				for _, v := range p.Cookies {
+					req.AddCookie(v)
+				}
+			}
 			end := uint64(file.headerOffset) + file.CompressedSize64 + padding
 			reqRange := fmt.Sprintf("bytes=%d-%d", file.headerOffset, end)
 			req.Header.Add("Range", reqRange)

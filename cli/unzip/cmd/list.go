@@ -26,8 +26,8 @@ import (
 	"os"
 	"text/tabwriter"
 
+	"github.com/0xJacky/partialzip"
 	humanize "github.com/dustin/go-humanize"
-	"github.com/heyleke/partialzip"
 	"github.com/spf13/cobra"
 )
 

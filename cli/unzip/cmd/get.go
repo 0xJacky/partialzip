@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/heyleke/partialzip"
+	"github.com/0xJacky/partialzip"
 	"github.com/spf13/cobra"
 )
 
