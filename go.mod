@@ -1,4 +1,4 @@
-module github.com/heyleke/partialzip
+module github.com/0xJacky/partialzip
 
 go 1.17
 

@@ -16,15 +16,27 @@ import (
 
 // PartialZip defines a custom partialzip object
 type PartialZip struct {
-	URL   string
-	Size  int64
-	Files []*File
+	URL     string
+	Size    int64
+	Files   []*File
+	Cookies []*http.Cookie
 }
 
 // New returns a newly created partialzip object.
 func New(url string) (*PartialZip, error) {
 
 	pz := &PartialZip{URL: url}
+
+	err := pz.init()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read http response body")
+	}
+
+	return pz, nil
+}
+
+func NewWithCookies(url string, cookies []*http.Cookie) (*PartialZip, error) {
+	pz := &PartialZip{URL: url, Cookies: cookies}
 
 	err := pz.init()
 	if err != nil {
@@ -44,10 +56,15 @@ func (p *PartialZip) init() error {
 
 	// get remote zip size
 	req, _ := http.NewRequest("HEAD", p.URL, nil)
+	if len(p.Cookies) > 0 {
+		for _, v := range p.Cookies {
+			req.AddCookie(v)
+		}
+	}
 	resp, _ := client.Do(req)
 	p.Size = resp.ContentLength
 	count := 0
-	for offset < 0 && chuck < (1000 * 1024) {
+	for offset < 0 && chuck < (1000*1024) {
 		count++
 		//increase until we have enough to hold in the offset
 		chuck = 10 * chuck
